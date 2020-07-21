@@ -4,18 +4,16 @@ def fibs(num)
     for i in 2 .. num
         fib_series[i] = fib_series[i-2] + fib_series[i-1]
     end
-    print fib_series
-    puts "\n"
+    return fib_series
 end
 
 def fibs_rec(num)
     if num < 2
-        return num
+        return [0,1]
     else
-        return fibs_rec(num-1)+fibs_rec(num-2)
+        return  fibs_rec(num-1).append(fibs_rec(num-1)[-2] + fibs_rec(num-1)[-1])
     end
 end
 
-
-fibs(10)
-puts fibs_rec(10)
+pp fibs(10)
+pp fibs_rec(10)
