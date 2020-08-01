@@ -12,9 +12,17 @@ end
 class Tree
     attr_accessor :data
     attr_accessor :root
+    attr_accessor :inorder_data
+    attr_accessor :preorder_data
+    attr_accessor :postorder_data
+    attr_accessor :found
     def initialize(data)
       @data=data
       @root=build_tree(bubble_sort(remove_duplicates(data)),0,remove_duplicates(data).length-1)
+      @inorder_data=[]
+      @preorder_data=[]
+      @postorder_data=[]
+      @found=nil
       puts "Sorted"
       puts bubble_sort(remove_duplicates(data))
       puts "Root is #{@root.value}"
@@ -81,18 +89,60 @@ class Tree
 
     def find(root,value)
         return if root==nil
+        if root.value == value
+            @found = root
+            return @found
+        end
         find(root.left_child,value)
-        return root if root.value == value
         find(root.right_child,value) 
+        return @found
     end
 
-    def level_order(root)
+    def level_order
         data=[]
-        return if root==nil
-        data.push(root.value) unless data.include?root.value
-        data << level_order(root.left_child)
-        data << level_order(root.right_child)
+        nodes=[]
+        nodes.push(@root)
+        for node in nodes
+            if node!=nil
+                nodes.push(node.left_child) unless nodes.include?node.left_child or node.left_child==nil
+                nodes.push(node.right_child) unless nodes.include?node.right_child or node.right_child==nil
+            end
+        end
+        for node in nodes
+            data.push(node.value)
+        end
         return data
+    end
+
+    def inorder(root)
+        return if root==nil
+        inorder(root.left_child)
+        @inorder_data.push(root.value)
+        inorder(root.right_child)
+        return
+    end
+
+    def preorder(root)
+        return if root==nil
+        @preorder_data.push(root.value)
+        preorder(root.left_child)
+        preorder(root.right_child)
+        return
+    end
+
+    def postorder(root)
+        return if root==nil
+        postorder(root.left_child)
+        postorder(root.right_child)
+        @postorder_data.push(root.value)
+        return
+    end
+
+    def depth(node)
+        return 0 if node==nil
+        left=depth(node.left_child)
+        right=depth(node.right_child)
+        return [left,right].max + 1
     end
  
     def display_tree(root)
@@ -149,4 +199,11 @@ t1.display_tree(t1.root)
 puts "---------"
 puts "Root is #{t1.root.value}"
 puts t1.find(t1.root,78)
-#puts (t1.level_order(t1.root))
+pp "Level order #{t1.level_order}"
+t1.inorder(t1.root)
+pp "Inorder     #{t1.inorder_data}"
+t1.preorder(t1.root)
+pp "Pre-order   #{t1.preorder_data}"
+t1.postorder(t1.root)
+pp "Post-order  #{t1.postorder_data}"
+puts t1.depth(t1.find(t1.root,66))
