@@ -23,13 +23,9 @@ class Tree
       @preorder_data=[]
       @postorder_data=[]
       @found=nil
-      puts "Sorted"
-      puts bubble_sort(remove_duplicates(data))
-      puts "Root is #{@root.value}"
     end
  
     def build_tree(data,first,last)
-      #puts data
       return nil if first > last
       mid=(first+last)/2
       root=Node.new(data[mid])
@@ -39,18 +35,18 @@ class Tree
     end
 
     def insert(value)
-      puts "Here"
       node=Node.new(value)
       node.left_child=nil
       node.right_child=nil
       current=@root
-      while current.left_child!=nil and current.right_child!=nil
+      while current.left_child!=nil or current.right_child!=nil
         if value>current.value
           current=current.right_child
         else
           current=current.left_child
         end
       end
+      puts "Adding #{value}"
       if value>current.value
         current.right_child=node
       else
@@ -144,19 +140,22 @@ class Tree
         right=depth(node.right_child)
         return [left,right].max + 1
     end
- 
-    def display_tree(root)
-      return if root==nil
-      display_tree(root.left_child)
-      display_sub_tree(root)
-      display_tree(root.right_child)
+
+    def balanced?
+        data=level_order
+        for val in data
+            node=find(@root,val)
+            if (depth(node.left_child)-depth(node.right_child)).abs > 1
+                return false
+            end
+        end
+        return true
     end
- 
-    def display_sub_tree(node)
-      puts "\n"
-      puts "Value is #{node.value}"
-      puts "Left value is #{node.left_child.value}" unless node.left_child == nil
-      puts "Right value is #{node.right_child.value}" unless node.right_child == nil
+
+    def rebalance
+        puts "Rebalancing tree"
+        data=level_order
+        @root=build_tree(data,0,data.length-1)
     end
  
     def bubble_sort(list)
@@ -184,26 +183,38 @@ class Tree
       end
       return list1
     end
+
+    def pretty_print(node = @root, prefix="", is_left = true)
+        pretty_print(node.right_child, "#{prefix}#{is_left ? "│ " : " "}", false) if node.right_child!=nil
+        puts "#{prefix}#{is_left ? "└── " : "┌── "}#{node.value}"
+        pretty_print(node.left_child, "#{prefix}#{is_left ? " " : "│ "}", true) if node.left_child!=nil
+      end
 end
  
- 
-num1=[66,54,78,103,25,103,64,101,41]
-t1=Tree.new(num1)
-t1.display_tree(t1.root)
-puts "---------"
-t1.insert(71)
-t1.display_tree(t1.root)
-puts "---------"
-t1.delete(t1.root,64)
-t1.display_tree(t1.root)
-puts "---------"
-puts "Root is #{t1.root.value}"
-puts t1.find(t1.root,78)
-pp "Level order #{t1.level_order}"
-t1.inorder(t1.root)
-pp "Inorder     #{t1.inorder_data}"
+
+data = Array.new(15) { rand(1..100) }
+t1=Tree.new(data)
+puts "Is the tree balanced? #{t1.balanced?}"
+pp "Level order : #{t1.level_order}"
 t1.preorder(t1.root)
-pp "Pre-order   #{t1.preorder_data}"
+pp "Pre-order   : #{t1.preorder_data}"
 t1.postorder(t1.root)
-pp "Post-order  #{t1.postorder_data}"
-puts t1.depth(t1.find(t1.root,66))
+pp "Post-order  : #{t1.postorder_data}"
+t1.inorder(t1.root)
+pp "Inorder     : #{t1.inorder_data}"
+t1.insert(103)
+t1.insert(104)
+puts "Is the tree balanced now? #{t1.balanced?}"
+t1.rebalance
+puts "Is the tree balanced now? #{t1.balanced?}"
+pp "Level order : #{t1.level_order}"
+t1.preorder_data=[]
+t1.postorder_data=[]
+t1.inorder_data=[]
+t1.preorder(t1.root)
+pp "Pre-order   : #{t1.preorder_data}"
+t1.postorder(t1.root)
+pp "Post-order  : #{t1.postorder_data}"
+t1.inorder(t1.root)
+pp "Inorder     : #{t1.inorder_data}"
+t1.pretty_print(t1.root)
