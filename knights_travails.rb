@@ -1,9 +1,11 @@
 class Cell
     attr_accessor :position
     attr_accessor :moves
-    def initialize(position)
+    attr_accessor :parent
+    def initialize(position,parent=nil)
         @position=position
         @moves=simulate_moves
+        @parent=parent
     end
   
     def simulate_moves
@@ -19,69 +21,54 @@ class Cell
             end
         end
         return moves
-        end
+    end
 end
 
-class Board
-
-    def initialize
-        @nodes=Hash.new
-        @path=[]
-        create_cells
-    end
-
-    def create_cells
-        for i in 0..7
-            for j in 0..7
-                cell=Cell.new([i,j])
-                @nodes[[i,j]]=cell
-            end
+def knight_moves(source,dest)
+    node=Cell.new(source)
+    found=0
+    steps=0
+    list=[]
+    last=nil
+    node.moves.each { 
+        |move|
+        if move !=nil
+            c1=Cell.new(move,node)
+            list << c1
         end
-    end
-
-    def knight_moves(a,b)        
-        #pp @nodes[b]
-        for i in 0..7
-            if @nodes[a].moves.include?b
-                return [a,b]
-            else
-                @path[i]=[]
-                puts "Before"
-                search(@nodes[a],b,i,0)
-                puts "After"
-                puts "Path #{@path[i]}"
-                return "Nope"
+        }
+    while found==0
+        steps += 1
+        list.each {
+            |item|
+            if item.position == dest
+                found=1
+                last=item
+                next
             end
-        end
-    end
-
-    def search(a,b,i,j)
-        return if a==nil
-        puts "A's moves #{a.moves}"
-        @path[i].push(a.position)
-        if a.moves.include?b
-            puts "Here"
-            @path[i].push(b)
-            return
-        else
-            for attempt in a.moves
-                puts "Inside"
-                pp attempt
-                pp b
-                if attempt==b
-                    @path[i].push(attempt)
-                    return
-                elsif j>5
-                    return
-                else
-                    j+=1
-                    search(@nodes[attempt],b,i,j)
+        }
+        temp=list
+        list=[]
+        temp.each {
+            |item|
+            node=Cell.new(item.position,item.parent)
+            node.moves.each { 
+                |move| 
+                if move!=nil
+                    c1=Cell.new(move,node)
+                    list<<c1
                 end
-            end
-        end
+                }
+        }
     end
-
+    puts "You can reach #{dest} in #{steps} moves"
+    path=""
+    for i in 1..steps
+        path.insert(0,"#{last.position} ")
+        last=last.parent if last.parent != nil
+    end
+    path.insert(0,"#{source} ")
+    puts "Path is #{path}"
 end
 
-game=Board.new()
-pp game.knight_moves([0,0],[2,4])
+knight_moves([0,0],[7,7])
