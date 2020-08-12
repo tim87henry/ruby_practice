@@ -1,4 +1,5 @@
 def caesar_cipher(secret_str,num_shift)
+    num_shift=num_shift%26
     encrypted_str ="" 
     secret_str.each_byte do |c|
         ascii = c
@@ -10,16 +11,17 @@ def caesar_cipher(secret_str,num_shift)
                 ascii_start = 97
                 ascii_end = 122
             end
+            ascii_end+=1 if (c+num_shift.to_i==90 || c+num_shift.to_i==122)
             ascii = (c+num_shift.to_i) % ascii_end
             ascii = ascii + ascii_start - 1 if ascii < ascii_start
         end
         encrypted_str += ascii.chr
     end
-    puts encrypted_str
+    return encrypted_str
 end
 
 puts "Enter the string to be encrypted : "
 secret_str=gets.chomp
 puts "Enter the required shift factor : "
 num_shift=gets.chomp
-caesar_cipher(secret_str,num_shift)
+puts caesar_cipher(secret_str,num_shift)
